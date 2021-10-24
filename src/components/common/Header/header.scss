@@ -1,0 +1,41 @@
+.header {
+	padding: 36px 0;
+	background-color: #f6f7ff;
+}
+
+.header__container {
+	display: grid;
+	grid-auto-flow: column;
+	align-items: center;
+	margin: 0 auto;
+	width: 1170px;	
+}
+
+.header__login {
+	display: grid;
+	grid-auto-flow: column;
+	column-gap: 10px;
+	place-content: center end;
+	vertical-align: middle;
+}
+
+.login__text {
+	align-self: center;
+}
+
+.option {
+	display: grid;
+	grid-auto-flow: column;
+	column-gap: 12px;
+	padding: 0;
+}
+
+.option__link {
+	&:hover {
+		opacity: 0.7;
+	}
+
+	&--active {
+		color: #2c36f2;
+	}
+}
