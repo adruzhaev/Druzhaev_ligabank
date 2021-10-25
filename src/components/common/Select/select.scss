@@ -1,0 +1,19 @@
+.container {
+	position: relative;
+}
+
+.arrow {
+	position: absolute;
+	bottom: 22px;
+	right: 14px;
+}
+
+.select {
+	appearance: none;
+	border: 1px solid #1f1e25;
+	border-radius: 4px;
+	height: min-content;
+	padding: 14.5px;
+	padding-right: 40px;
+	font-size: 24px;
+}
