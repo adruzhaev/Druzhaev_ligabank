@@ -16,7 +16,7 @@ export const Header = memo(function Header({
 
 			<ul className="option">
 				{FUNCTIONALITY.map((item) => {
-					return <li>
+					return <li key={item}>
 						<a className="option__link" href="/">
 							{item}
 						</a>

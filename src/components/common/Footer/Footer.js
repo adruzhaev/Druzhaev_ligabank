@@ -23,7 +23,7 @@ export const Footer = memo(function Footer({className}) {
 			<nav>
 				<ul className="option-footer">
 					{FUNCTIONALITY.map((item) => {
-						return <li>
+						return <li key={item}>
 							<a className="option-footer__link" href="/">
 								{item}
 							</a>
