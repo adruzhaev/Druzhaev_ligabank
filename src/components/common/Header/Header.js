@@ -2,10 +2,32 @@ import cn from 'classnames'
 import {Icon} from '../Icon/Icon.js'
 import {Logo} from '../Logo/Logo.js'
 import {memo} from 'react'
+import {NavLink} from "react-router-dom";
 import './header.scss'
 import sprite from '../../../assets/sprite.svg'
 
-const FUNCTIONALITY = ['Услуги', 'Рассчитать кредит', 'Конвертер валют', 'Контакты', 'Задать вопрос']
+const FUNCTIONALITY = [
+	{
+		title: 'Услуги',
+		link: 'services',
+	}, 
+	{
+		title: 'Рассчитать кредит',
+		link: 'calculate-credit',
+	}, 
+	{
+		title: 'Конвертер валют',
+		link: 'currency-conversion',
+	}, 
+	{
+		title: 'Контакты',
+		link: 'contacts',
+	}, 
+	{
+		title: 'Задать вопрос',
+		link: 'ask-question',
+	},
+]
 
 export const Header = memo(function Header({
 	className
@@ -16,10 +38,10 @@ export const Header = memo(function Header({
 
 			<ul className="option">
 				{FUNCTIONALITY.map((item) => {
-					return <li key={item}>
-						<a className="option__link" href="/">
-							{item}
-						</a>
+					return <li title={item.title}>
+						<NavLink activeClassName="option__link--active" className="option__link" to={`${item.link}`}>
+							{item.title}
+						</NavLink>
 					</li>
 				})}
 			</ul>
