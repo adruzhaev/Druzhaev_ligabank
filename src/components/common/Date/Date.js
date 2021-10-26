@@ -23,7 +23,7 @@ export const Date = memo(function Date({register, ...attributes}) {
   })
 
 	return <div className="container" ref={rootReference}>
-		<input className="date-input" placeholder={dateNow} {...register} {...attributes} onClick={() => setIsDayPickerShown(true)} />
+		<input value={dayjs().format('YYYY-MM-DD')} className="date-input" placeholder={dateNow} {...register} {...attributes} onClick={() => setIsDayPickerShown(true)} />
 		<Icon className="calendar" name={`${sprite}#calendar`} color="none" width="41" height="44" />	
 
 		{isDayPickerShown && <DayPicker className="day-picker" on />}
