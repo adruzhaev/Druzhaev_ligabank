@@ -1,16 +1,19 @@
-import {memo, useEffect, useMemo, useState} from 'react'
+import {Fragment, memo, useCallback, useEffect, useMemo, useState} from 'react'
 import axios from 'axios'
 import {Button} from '../common/Button/Button'
 import {Date} from '../common/Date/Date'
 import dayjs from 'dayjs'
+import {Icon} from '../common/Icon/Icon'
 import {Input} from '../common/Input/Input'
 import {Select} from '../common/Select/Select'
 import {useForm} from 'react-hook-form'
+import sprite from '../../assets/sprite.svg'
 import './converterCounter.scss'
 
 export const ConverterCounter = memo(function ConverterCounter({className}) {
 	const [currency, setCurrency] = useState(0)
-	const {register, watch, formState} = useForm();
+	const [conversionHistory, setConversionHistory] = useState([])
+	const {handleSubmit, register, watch, formState, setValue} = useForm();
 	const amountFromValue = watch("amount-from")
 	const amountToValue = watch("amount-to")
 	const currencyTypeFrom = watch("currency-type-from")
@@ -19,28 +22,36 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 	const dateNow = dayjs().format('YYYY-MM-DD')
 	const searchType = dateOfСonversion === dateNow ? 'latest' : 'historical'
 
-	console.log(dateOfСonversion);
-
 	const amountFromValueChanging = useMemo(() => {
 		if (formState.name === 'amount-from' && formState.isDirty) {
+			setValue("amount-to", amountFromValue * currency)
 			return amountFromValue
 		}
 
+		if (!amountFromValue) {
+			return ''
+		}
+
 		return amountToValue * currency
-	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency])
+	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency, setValue])
 
 	const amountToValueChanging = useMemo(() => {
 		if (formState.name === 'amount-to' && formState.isDirty) {
+			setValue("amount-from", amountToValue * currency)
 			return amountToValue
 		}
 
+		if (!amountToValue) {
+			return ''
+		}
+
 		return amountFromValue * currency
-	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency])
+	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency, setValue])
 
 	useEffect(() => {
 		const getCurrencyData = async () => {
 			try {	
-				if (!currencyTypeFrom) {
+				if (!currencyTypeFrom || !currencyTypeTo) {
 					return 
 				}
 				const response = await axios.get(`https://freecurrencyapi.net/api/v2/${searchType}?apikey=1deb9940-34ce-11ec-bb15-01fdbe3a3361&base_currency=${currencyTypeFrom}&date_from=${dateOfСonversion}&date_to=${dateOfСonversion}`);
@@ -52,32 +63,43 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 
 		getCurrencyData().then(data => {
 			if (data && searchType === 'historical') {
-				console.log('historical data: ', data);
 				setCurrency(data.data[`${dateOfСonversion}`][`${currencyTypeTo}`])
 			}
  			
 			if (data && searchType === 'latest') {
-				console.log('latest data: ', data);
 				setCurrency(data.data[`${currencyTypeTo}`])
 			}
 		})
 	}, [currencyTypeFrom, currencyTypeTo, searchType, dateOfСonversion])
+
+	const onSubmit = data => {
+		setConversionHistory(previous => [...previous, data]);
+		console.log(data);
+	}
+
+	const clearHistory = useCallback(() => {
+		setConversionHistory([])
+	}, [])
 
 	return <div className="converter">
 		<h1 className="converter__title">
 			Конвертер валют
 		</h1>
 
-		<form className="form">
+		<form className="form" onSubmit={handleSubmit(onSubmit)}>
 			<div className="form__containers">
 				<div className="form__choice">
-					<Input value={amountFromValueChanging || 0} id="from" labelText="У меня есть" register={register("amount-from")} />
+					<Input value={amountFromValueChanging} id="from" labelText="У меня есть" register={register("amount-from")} />
 					<Select defaultValue="RUB" className="form__select" register={register("currency-type-from")} />
 				</div>
 
+				<div className="form__arrows-container">
+					<Icon className="form__arrow" name={`${sprite}#conversion-arrow`} color="none" width="53" height="18" />	
+					<Icon className="form__arrow form__arrow--2" name={`${sprite}#conversion-arrow`} color="none" width="53" height="18" />	
+				</div>
+
 				<div className="form__choice">
-					{/* value={currency * amountFromValue || 0} */}
-					<Input value={amountToValueChanging || 0} id="to" labelText="Хочу приобрести" register={register("amount-to")} />
+					<Input value={amountToValueChanging} id="to" labelText="Хочу приобрести" register={register("amount-to")} />
 					<Select defaultValue="USD" className="form__select" register={register("currency-type-to")} />
 				</div>
 			</div>
@@ -93,21 +115,47 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 				История конвертаций
 			</h2>
 
-			<div className="operations">
-				<section>
-					<span>25.11.2020</span>
-					<span>1000 RUB</span>
-					<span>13,1234 USD</span>
-				</section>
+			<div className="operations-history">
+				{Boolean(conversionHistory.length) && <Fragment>
+					<section className="operations-history__section">
+						{(conversionHistory.reverse().map(item => {
+							return <div className="operations-history__container">
+								<span className="operations-history__date">{item['date-of-conversion']}</span>
 
-				<section>
-					<span>25.11.2020</span>	
-					<span>1000 RUB</span>
-					<span>13,1234 USD</span>
-				</section>
+								<div className="conversion">
+									<span className="conversion__from">
+										{item['amount-from']} {item['currency-type-from']}
+										<Icon className="conversion__arrow-history" name={`${sprite}#history-conversion-arrow`} color="none" width="41" height="18" />	
+									</span>
+
+									<span className="conversion__to">{item['amount-to']} {item['currency-type-to']}</span>
+								</div>
+							</div>
+						})).slice(0, 5)}
+					</section>
+
+					<section className="operations-history__section">
+						{(conversionHistory.reverse().map(item => {
+							return <div className="operations-history__container">
+								<span className="operations-history__date">{item['date-of-conversion']}</span>
+
+								<div className="conversion">
+									<span className="conversion__from">
+										{item['amount-from']} {item['currency-type-from']}
+										<Icon className="conversion__arrow-history" name={`${sprite}#history-conversion-arrow`} color="none" width="41" height="18" />	
+									</span>
+
+									<span className="conversion__to">{item['amount-to']} {item['currency-type-to']}</span>
+								</div>
+							</div>
+						})).slice(5, 10)}
+					</section>
+				</Fragment>}
+
+				{!Boolean(conversionHistory.length) && <p className="operations-history__no">Пусто</p>}
 			</div>
 
-			<Button className="history__button" title="Очистить историю" />
+			<Button className="history__button" disabled={!Boolean(conversionHistory.length)} onClick={clearHistory} title="Очистить историю" />
 		</section>
 	</div>
 })
