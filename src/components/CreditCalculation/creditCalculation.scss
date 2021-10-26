@@ -4,7 +4,8 @@
 	justify-content: center;
 	column-gap: 180px;
 	padding: 120px 0;
-	background: conic-gradient(from 3.1416rad at 10% 50%, #2027B3, #3841FF);
+	background: conic-gradient(from 3.1416rad at 30% 40%, #2027B3, #2C36F2, #3841FF);
+	background-size: 680px;
 }
 
 .calculation {
@@ -16,11 +17,13 @@
 	color: #f6f7ff;
 	font-weight: 700;
 	font-size: 54px;
+	font-family: Roboto, sans-serif;
 }
 
 .calculation__description {
 	color: #f6f7ff;
 	font-size: 22px;	
+	font-family: Roboto, sans-serif;
 }
 
 .calculation__button {
