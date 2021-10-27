@@ -60,7 +60,7 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 					return
 				}
 
-				const response = await axios.get(`https://freecurrencyapi.net/api/v2/latest?apikey=${process.env.CURRENCY_API}&base_currency=${currencyTypeFrom}&date_from=${dateOfСonversion}&date_to=${dateOfСonversion}`);
+				const response = await axios.get(`https://freecurrencyapi.net/api/v2/latest?apikey=1deb9940-34ce-11ec-bb15-01fdbe3a3361&base_currency=${currencyTypeFrom}&date_from=${dateOfСonversion}&date_to=${dateOfСonversion}`);
 				return response.data
 			} catch (error) {
 				console.error(error);

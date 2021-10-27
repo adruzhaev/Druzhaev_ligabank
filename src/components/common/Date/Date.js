@@ -35,7 +35,7 @@ export const Date = memo(function Date({register, ...attributes}) {
 			className="date-input" 
 			onClick={() => setIsDayPickerShown(true)}
 			placeholder={dateNow} 
-			value={dayjs(selectedDay.selectedDay).format('DD.MM.YYYY')} 
+			value={dayjs(selectedDay.selectedDay).format('YYYY-MM-DD')} 
 			{...register} 
 			{...attributes} 
 		/>
