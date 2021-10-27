@@ -38,7 +38,7 @@ export const Header = memo(function Header({
 
 			<ul className="option">
 				{FUNCTIONALITY.map((item) => {
-					return <li title={item.title}>
+					return <li title={item.title} key={item.title}>
 						<NavLink activeClassName="option__link--active" className="option__link" to={`${item.link}`}>
 							{item.title}
 						</NavLink>

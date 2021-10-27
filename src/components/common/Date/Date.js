@@ -11,6 +11,7 @@ export const Date = memo(function Date({register, ...attributes}) {
 	const [isDayPickerShown, setIsDayPickerShown] = useState(false)
 	const dateNow = dayjs().format('DD.MM.YYYY')
 	const rootReference = useRef(null)
+	const [selectedDay, setSelectedDay] = useState(dateNow)
 
 	const hide = useCallback(() => {
     setIsDayPickerShown(false)
@@ -22,10 +23,28 @@ export const Date = memo(function Date({register, ...attributes}) {
     toggleNodeRef: rootReference,
   })
 
+	const onDayClickHandler = useCallback((day, {selected}) => {
+    setSelectedDay({
+      selectedDay: selected ? undefined : day,
+    })
+		hide()
+  }, [hide])
+
 	return <div className="container" ref={rootReference}>
-		<input value={dayjs().format('YYYY-MM-DD')} className="date-input" placeholder={dateNow} {...register} {...attributes} onClick={() => setIsDayPickerShown(true)} />
+		<input 
+			className="date-input" 
+			onClick={() => setIsDayPickerShown(true)}
+			placeholder={dateNow} 
+			value={dayjs(selectedDay.selectedDay).format('DD.MM.YYYY')} 
+			{...register} 
+			{...attributes} 
+		/>
 		<Icon className="calendar" name={`${sprite}#calendar`} color="none" width="41" height="44" />	
 
-		{isDayPickerShown && <DayPicker className="day-picker" on />}
+		{isDayPickerShown && <DayPicker 
+			className="day-picker" 
+			onDayClick={onDayClickHandler}
+			selectedDays={selectedDay}   
+		/>}
 	</div>
 })
