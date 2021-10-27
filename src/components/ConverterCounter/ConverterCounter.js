@@ -7,6 +7,7 @@ import {Icon} from '../common/Icon/Icon'
 import {Input} from '../common/Input/Input'
 import {Select} from '../common/Select/Select'
 import {useForm} from 'react-hook-form'
+import {v4 as uuidv4} from 'uuid';
 import sprite from '../../assets/sprite.svg'
 import './converterCounter.scss'
 
@@ -18,13 +19,15 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 	const amountToValue = watch("amount-to")
 	const currencyTypeFrom = watch("currency-type-from")
 	const currencyTypeTo = watch("currency-type-to")
-	const dateOfСonversion = watch("date-of-conversion")
+	const dateOfСonversion = watch("date-of-conversion") // dayjs(watch("date-of-conversion")).format('YYYY-MM-DD')
 	const dateNow = dayjs().format('YYYY-MM-DD')
 	const searchType = dateOfСonversion === dateNow ? 'latest' : 'historical'
 
+	console.log(currencyTypeFrom);
+
 	const amountFromValueChanging = useMemo(() => {
 		if (formState.name === 'amount-from' && formState.isDirty) {
-			setValue("amount-to", amountFromValue * currency)
+			setValue("amount-to", (amountFromValue * currency).toFixed(2))
 			return amountFromValue
 		}
 
@@ -32,12 +35,12 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 			return ''
 		}
 
-		return amountToValue * currency
+		return (amountToValue * currency).toFixed(2)
 	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency, setValue])
 
 	const amountToValueChanging = useMemo(() => {
 		if (formState.name === 'amount-to' && formState.isDirty) {
-			setValue("amount-from", amountToValue * currency)
+			setValue("amount-from", (amountToValue * currency).toFixed(2))
 			return amountToValue
 		}
 
@@ -45,7 +48,7 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 			return ''
 		}
 
-		return amountFromValue * currency
+		return (amountFromValue * currency).toFixed(2)
 	}, [amountToValue, amountFromValue, formState.name, formState.isDirty, currency, setValue])
 
 	useEffect(() => {
@@ -54,7 +57,12 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 				if (!currencyTypeFrom || !currencyTypeTo) {
 					return 
 				}
-				const response = await axios.get(`https://freecurrencyapi.net/api/v2/${searchType}?apikey=1deb9940-34ce-11ec-bb15-01fdbe3a3361&base_currency=${currencyTypeFrom}&date_from=${dateOfСonversion}&date_to=${dateOfСonversion}`);
+
+				if (currencyTypeFrom === currencyTypeTo) {
+					return
+				}
+
+				const response = await axios.get(`https://freecurrencyapi.net/api/v2/latest?apikey=${process.env.CURRENCY_API}&base_currency=${currencyTypeFrom}&date_from=${dateOfСonversion}&date_to=${dateOfСonversion}`);
 				return response.data
 			} catch (error) {
 				console.error(error);
@@ -73,14 +81,19 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 	}, [currencyTypeFrom, currencyTypeTo, searchType, dateOfСonversion])
 
 	const onSubmit = data => {
-		setConversionHistory(previous => [...previous, data]);
+		if (conversionHistory.length >= 10) {
+			conversionHistory.pop()
+		}
+
 		console.log(data);
+
+		setConversionHistory(previous => [data, ...previous]);
 	}
 
 	const clearHistory = useCallback(() => {
 		setConversionHistory([])
 	}, [])
-
+	
 	return <div className="converter">
 		<h1 className="converter__title">
 			Конвертер валют
@@ -106,7 +119,7 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 
 			<div className="form__containers">
 				<Date register={register("date-of-conversion")} />
-				<Button className="form__button" title="Сохранить результат" />
+				<Button disabled={!Boolean(amountFromValueChanging) || !Boolean(amountToValueChanging)} className="form__button" title="Сохранить результат" />
 			</div>		
 		</form>
 
@@ -118,8 +131,8 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 			<div className="operations-history">
 				{Boolean(conversionHistory.length) && <Fragment>
 					<section className="operations-history__section">
-						{(conversionHistory.reverse().map(item => {
-							return <div className="operations-history__container">
+						{(conversionHistory.map(item => {
+							return <div className="operations-history__container" key={uuidv4()}>
 								<span className="operations-history__date">{item['date-of-conversion']}</span>
 
 								<div className="conversion">
@@ -135,8 +148,8 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 					</section>
 
 					<section className="operations-history__section">
-						{(conversionHistory.reverse().map(item => {
-							return <div className="operations-history__container">
+						{(conversionHistory.map(item => {
+							return <div className="operations-history__container" key={uuidv4()}>
 								<span className="operations-history__date">{item['date-of-conversion']}</span>
 
 								<div className="conversion">
