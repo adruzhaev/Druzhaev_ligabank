@@ -19,11 +19,9 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 	const amountToValue = watch("amount-to")
 	const currencyTypeFrom = watch("currency-type-from")
 	const currencyTypeTo = watch("currency-type-to")
-	const dateOfСonversion = watch("date-of-conversion") // dayjs(watch("date-of-conversion")).format('YYYY-MM-DD')
+	const dateOfСonversion = watch("date-of-conversion")
 	const dateNow = dayjs().format('YYYY-MM-DD')
 	const searchType = dateOfСonversion === dateNow ? 'latest' : 'historical'
-
-	console.log(currencyTypeFrom);
 
 	const amountFromValueChanging = useMemo(() => {
 		if (formState.name === 'amount-from' && formState.isDirty) {
@@ -84,8 +82,6 @@ export const ConverterCounter = memo(function ConverterCounter({className}) {
 		if (conversionHistory.length >= 10) {
 			conversionHistory.pop()
 		}
-
-		console.log(data);
 
 		setConversionHistory(previous => [data, ...previous]);
 	}
